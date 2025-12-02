@@ -46,8 +46,10 @@ export default function AssignmentDetailPage({ params }: PageProps) {
       const authStatus = localStorage.getItem('isAuthenticated')
       const userData = localStorage.getItem('user')
       
+      let parsedUser: any = null
+      
       if (authStatus === 'true' && userData) {
-        const parsedUser = JSON.parse(userData)
+        parsedUser = JSON.parse(userData)
         setUser(parsedUser)
         setUserRole(parsedUser.role || null)
       } else {
@@ -68,7 +70,7 @@ export default function AssignmentDetailPage({ params }: PageProps) {
       setAssignment(foundAssignment)
 
       // Öğrenci için teslim durumunu kontrol et
-      if (parsedUser.role === 'ogrenci') {
+      if (parsedUser && parsedUser.role === 'ogrenci') {
         const existingSubmission = getAssignmentSubmission(assignmentId, parsedUser.id)
         setSubmission(existingSubmission)
         if (existingSubmission) {
@@ -77,7 +79,7 @@ export default function AssignmentDetailPage({ params }: PageProps) {
       }
 
       // Öğretmen için sınıfları yükle
-      if (parsedUser.role === 'ogretmen') {
+      if (parsedUser && parsedUser.role === 'ogretmen') {
         const teacherClasses = getTeacherClasses(parsedUser.id)
         setClasses(teacherClasses)
       }
