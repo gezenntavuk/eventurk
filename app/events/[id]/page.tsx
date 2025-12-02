@@ -4,13 +4,10 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
-  isEventInterested,
-  toggleEventInterest,
   isEventAttending,
   toggleEventAttendance,
   getDeletedEvents,
   deleteEvent,
-  getEventInterestedCount,
   getEventAttendeesCount,
 } from '@/lib/storage'
 import { allEvents } from '@/lib/data'
@@ -24,9 +21,7 @@ interface PageProps {
 export default function EventDetailPage({ params }: PageProps) {
   const router = useRouter()
   const [event, setEvent] = useState<any>(null)
-  const [isInterested, setIsInterested] = useState(false)
   const [isAttending, setIsAttending] = useState(false)
-  const [interestedCount, setInterestedCount] = useState(0)
   const [attendeesCount, setAttendeesCount] = useState(0)
   const [canManageEvent, setCanManageEvent] = useState(false)
   const [canInteract, setCanInteract] = useState(false)
@@ -55,9 +50,7 @@ export default function EventDetailPage({ params }: PageProps) {
       setEvent(foundEvent)
       
       // Global sayıları yükle
-      const globalInterested = getEventInterestedCount(eventId)
       const globalAttendees = getEventAttendeesCount(eventId)
-      setInterestedCount(globalInterested)
       setAttendeesCount(globalAttendees)
       
       // Admin veya kurum yetkilisi mi? ve giriş durumu
@@ -69,12 +62,9 @@ export default function EventDetailPage({ params }: PageProps) {
 
         if (canDoActions) {
           // localStorage'dan durumları yükle
-          const interested = isEventInterested(eventId)
           const attending = isEventAttending(eventId)
-          setIsInterested(interested)
           setIsAttending(attending)
         } else {
-          setIsInterested(false)
           setIsAttending(false)
         }
 
@@ -110,9 +100,7 @@ export default function EventDetailPage({ params }: PageProps) {
     if (!event) return
 
     const handleStorageChange = () => {
-      const globalInterested = getEventInterestedCount(event.id)
       const globalAttendees = getEventAttendeesCount(event.id)
-      setInterestedCount(globalInterested)
       setAttendeesCount(globalAttendees)
     }
 
@@ -125,23 +113,6 @@ export default function EventDetailPage({ params }: PageProps) {
     }
   }, [event])
 
-  const handleInterest = () => {
-    if (!event) return
-    if (!canInteract) {
-      alert('Bu işlem için önce giriş yapmalısınız.')
-      return
-    }
-    const newState = toggleEventInterest(event.id)
-    setIsInterested(newState)
-    
-    // Global sayıları güncelle
-    const globalInterested = getEventInterestedCount(event.id)
-    setInterestedCount(globalInterested)
-    
-    // Diğer sekmeleri/sayfaları bilgilendir
-    window.dispatchEvent(new Event('eventCountChange'))
-  }
-
   const handleAttendance = () => {
     if (!event) return
     if (!canInteract) {
@@ -152,15 +123,8 @@ export default function EventDetailPage({ params }: PageProps) {
     setIsAttending(newState)
     
     // Global sayıları güncelle
-    const globalInterested = getEventInterestedCount(event.id)
     const globalAttendees = getEventAttendeesCount(event.id)
-    setInterestedCount(globalInterested)
     setAttendeesCount(globalAttendees)
-    
-    // Eğer ilgilenmiyorsa, ilgilenmeyi de ekle
-    if (newState && !isInterested) {
-      setIsInterested(true)
-    }
     
     // Diğer sekmeleri/sayfaları bilgilendir
     window.dispatchEvent(new Event('eventCountChange'))
@@ -297,10 +261,6 @@ export default function EventDetailPage({ params }: PageProps) {
                 <span className="font-semibold text-gray-900">{attendeesCount}</span>
                 <span className="ml-1">katılımcı</span>
               </div>
-              <div>
-                <span className="font-semibold text-gray-900">{interestedCount}</span>
-                <span className="ml-1">ilgilenen</span>
-              </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
               <button
@@ -308,16 +268,6 @@ export default function EventDetailPage({ params }: PageProps) {
                 className="px-4 py-2 sm:px-6 sm:py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-semibold transition-colors text-sm sm:text-base"
               >
                 Paylaş
-              </button>
-              <button
-                onClick={handleInterest}
-                className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold transition-colors text-sm sm:text-base ${
-                  isInterested
-                    ? 'bg-primary-500 text-white hover:bg-primary-600'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {isInterested ? 'İlgileniyorum ✓' : 'İlgileniyorum'}
               </button>
               <button
                 onClick={handleAttendance}
