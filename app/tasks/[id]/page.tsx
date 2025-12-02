@@ -33,33 +33,33 @@ export default function TaskDetailPage({ params }: PageProps) {
       const userData = localStorage.getItem('user')
       
       if (authStatus === 'true' && userData) {
-        const parsedUser = JSON.parse(userData)
+        const parsedUser = JSON.parse(userData) as { id: number; role: string; [key: string]: any }
         setUser(parsedUser)
         setUserRole(parsedUser.role || null)
+
+        // Görevi yükle
+        const tasks = getAllTasks()
+        const foundTask = tasks.find(t => t.id === taskId)
+        
+        if (!foundTask) {
+          alert('Görev bulunamadı')
+          router.push('/')
+          return
+        }
+
+        setTask(foundTask)
+
+        // Öğrenci için teslim durumunu kontrol et
+        if (parsedUser.role === 'ogrenci') {
+          const existingSubmission = getTaskSubmission(taskId, parsedUser.id)
+          setSubmission(existingSubmission)
+          if (existingSubmission) {
+            setSubmitContent(existingSubmission.content)
+          }
+        }
       } else {
         router.push('/login')
         return
-      }
-
-      // Görevi yükle
-      const tasks = getAllTasks()
-      const foundTask = tasks.find(t => t.id === taskId)
-      
-      if (!foundTask) {
-        alert('Görev bulunamadı')
-        router.push('/')
-        return
-      }
-
-      setTask(foundTask)
-
-      // Öğrenci için teslim durumunu kontrol et
-      if (parsedUser.role === 'ogrenci') {
-        const existingSubmission = getTaskSubmission(taskId, parsedUser.id)
-        setSubmission(existingSubmission)
-        if (existingSubmission) {
-          setSubmitContent(existingSubmission.content)
-        }
       }
     }
   }, [taskId, router])
