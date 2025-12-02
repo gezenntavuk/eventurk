@@ -3,9 +3,6 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { 
-  isEventInterested, 
-  toggleEventInterest,
-  getEventInterestedCount,
   getEventAttendeesCount 
 } from '@/lib/storage'
 
@@ -37,41 +34,20 @@ interface EventCardProps {
 }
 
 export default function EventCard({ event }: EventCardProps) {
-  const [isInterested, setIsInterested] = useState(false)
-  const [interestedCount, setInterestedCount] = useState(0)
   const [attendeesCount, setAttendeesCount] = useState(0)
-  const [canInteract, setCanInteract] = useState(false)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // Giriş kontrolü
-      const isUser = localStorage.getItem('isAuthenticated') === 'true'
-      const isOrg = localStorage.getItem('isOrganizationAuthenticated') === 'true'
-      const allowed = isUser || isOrg
-      setCanInteract(allowed)
-
       // Global sayıları yükle
-      const globalInterested = getEventInterestedCount(event.id)
       const globalAttendees = getEventAttendeesCount(event.id)
-      setInterestedCount(globalInterested)
       setAttendeesCount(globalAttendees)
-
-      if (allowed) {
-        // localStorage'dan ilgi durumunu yükle
-        const interested = isEventInterested(event.id)
-        setIsInterested(interested)
-      } else {
-        setIsInterested(false)
-      }
     }
   }, [event.id])
 
   // Storage değişikliklerini dinle (diğer hesaplardan gelen güncellemeler için)
   useEffect(() => {
     const handleStorageChange = () => {
-      const globalInterested = getEventInterestedCount(event.id)
       const globalAttendees = getEventAttendeesCount(event.id)
-      setInterestedCount(globalInterested)
       setAttendeesCount(globalAttendees)
     }
 
@@ -83,23 +59,6 @@ export default function EventCard({ event }: EventCardProps) {
       window.removeEventListener('eventCountChange', handleStorageChange)
     }
   }, [event.id])
-
-  const handleInterest = () => {
-    if (!canInteract) {
-      alert('Bu işlem için önce giriş yapmalısınız.')
-      return
-    }
-
-    const newState = toggleEventInterest(event.id)
-    setIsInterested(newState)
-    
-    // Global sayıları güncelle
-    const globalInterested = getEventInterestedCount(event.id)
-    setInterestedCount(globalInterested)
-    
-    // Diğer sekmeleri/sayfaları bilgilendir
-    window.dispatchEvent(new Event('eventCountChange'))
-  }
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -173,21 +132,7 @@ export default function EventCard({ event }: EventCardProps) {
         <div className="flex items-center justify-between pt-4 border-t border-gray-200">
           <div className="flex items-center space-x-4 text-sm text-gray-500">
             <span>👥 {attendeesCount} katılımcı</span>
-            <span>❤️ {interestedCount} ilgilenen</span>
           </div>
-          <button
-            onClick={(e) => {
-              e.preventDefault()
-              handleInterest()
-            }}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
-              isInterested
-                ? 'bg-primary-600 text-white hover:bg-primary-700'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            {isInterested ? 'İlgileniyorum ✓' : 'İlgileniyorum'}
-          </button>
         </div>
       </div>
     </div>
