@@ -694,7 +694,7 @@ export function getAssignmentSubmission(assignmentId: number, studentId: number)
 }
 
 // Görev teslimi yap
-export function submitTask(submission: Omit<TaskSubmission, 'id' | 'submittedAt'>): TaskSubmission {
+export function submitTask(submission: Omit<TaskSubmission, 'id' | 'submittedAt' | 'status'>): TaskSubmission {
   if (typeof window === 'undefined') {
     throw new Error('Görev teslim edilemiyor')
   }
