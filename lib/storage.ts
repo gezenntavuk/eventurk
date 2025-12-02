@@ -650,7 +650,7 @@ export function getStudentTasks(studentId: number): Task[] {
 }
 
 // Ödev teslimi yap
-export function submitAssignment(submission: Omit<AssignmentSubmission, 'id' | 'submittedAt'>): AssignmentSubmission {
+export function submitAssignment(submission: Omit<AssignmentSubmission, 'id' | 'submittedAt' | 'status'>): AssignmentSubmission {
   if (typeof window === 'undefined') {
     throw new Error('Ödev teslim edilemiyor')
   }

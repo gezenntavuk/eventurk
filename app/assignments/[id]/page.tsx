@@ -46,49 +46,47 @@ export default function AssignmentDetailPage({ params }: PageProps) {
       const authStatus = localStorage.getItem('isAuthenticated')
       const userData = localStorage.getItem('user')
       
-      let parsedUser: any = null
-      
       if (authStatus === 'true' && userData) {
-        parsedUser = JSON.parse(userData)
+        const parsedUser = JSON.parse(userData) as { id: number; role: string; [key: string]: any }
         setUser(parsedUser)
         setUserRole(parsedUser.role || null)
+
+        // Ödevi yükle
+        const assignments = getAllAssignments()
+        const foundAssignment = assignments.find(a => a.id === assignmentId)
+        
+        if (!foundAssignment) {
+          alert('Ödev bulunamadı')
+          router.push('/')
+          return
+        }
+
+        setAssignment(foundAssignment)
+
+        // Öğrenci için teslim durumunu kontrol et
+        if (parsedUser.role === 'ogrenci') {
+          const existingSubmission = getAssignmentSubmission(assignmentId, parsedUser.id)
+          setSubmission(existingSubmission)
+          if (existingSubmission) {
+            setSubmitContent(existingSubmission.content)
+          }
+        }
+
+        // Öğretmen için sınıfları yükle
+        if (parsedUser.role === 'ogretmen') {
+          const teacherClasses = getTeacherClasses(parsedUser.id)
+          setClasses(teacherClasses)
+        }
+
+        // Paylaşım kontrolü
+        const publicPosts = getPublicSharedPosts()
+        const existingPost = publicPosts.find(p => p.assignmentId === assignmentId)
+        if (existingPost) {
+          setSharedPost(existingPost)
+        }
       } else {
         router.push('/login')
         return
-      }
-
-      // Ödevi yükle
-      const assignments = getAllAssignments()
-      const foundAssignment = assignments.find(a => a.id === assignmentId)
-      
-      if (!foundAssignment) {
-        alert('Ödev bulunamadı')
-        router.push('/')
-        return
-      }
-
-      setAssignment(foundAssignment)
-
-      // Öğrenci için teslim durumunu kontrol et
-      if (parsedUser && parsedUser.role === 'ogrenci') {
-        const existingSubmission = getAssignmentSubmission(assignmentId, parsedUser.id)
-        setSubmission(existingSubmission)
-        if (existingSubmission) {
-          setSubmitContent(existingSubmission.content)
-        }
-      }
-
-      // Öğretmen için sınıfları yükle
-      if (parsedUser && parsedUser.role === 'ogretmen') {
-        const teacherClasses = getTeacherClasses(parsedUser.id)
-        setClasses(teacherClasses)
-      }
-
-      // Paylaşım kontrolü
-      const publicPosts = getPublicSharedPosts()
-      const existingPost = publicPosts.find(p => p.assignmentId === assignmentId)
-      if (existingPost) {
-        setSharedPost(existingPost)
       }
     }
   }, [assignmentId, router])
