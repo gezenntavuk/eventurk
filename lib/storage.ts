@@ -354,13 +354,13 @@ export function saveTemplate(template: Omit<EventTemplate | TaskTemplate, 'id' |
   }
 
   const templates = getAllTemplates()
-  const newTemplate = {
+  const newTemplate: EventTemplate | TaskTemplate = {
     ...template,
     id: Date.now(),
     organizationId: orgId,
     createdAt: new Date().toISOString(),
     isTemplate: true as const,
-  }
+  } as EventTemplate | TaskTemplate
 
   templates.push(newTemplate)
   localStorage.setItem('contentTemplates', JSON.stringify(templates))
