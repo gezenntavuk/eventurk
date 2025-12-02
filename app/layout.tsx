@@ -1,17 +1,20 @@
-import type { Metadata } from 'next'
+'use client'
+
+import { useEffect } from 'react'
 import './globals.css'
 import Navigation from '@/components/Navigation'
-
-export const metadata: Metadata = {
-  title: 'Eventurk - Sosyal Medya',
-  description: 'Basit ve modern sosyal medya platformu',
-}
+import { initSampleOrganization } from '@/lib/init-sample-data'
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  useEffect(() => {
+    // Uygulama başladığında örnek kurum hesabını oluştur
+    initSampleOrganization()
+  }, [])
+
   return (
     <html lang="tr">
       <body

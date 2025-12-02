@@ -17,6 +17,7 @@ export default function RegisterPage() {
     confirmPassword: '',
     role: '' as UserRole | '',
     studentDocument: null as File | null,
+    teacherDocument: null as File | null,
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -37,14 +38,15 @@ export default function RegisterPage() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null
+    const fieldName = e.target.name
     setFormData({
       ...formData,
-      studentDocument: file,
+      [fieldName]: file,
     })
-    if (errors.studentDocument) {
+    if (errors[fieldName]) {
       setErrors({
         ...errors,
-        studentDocument: '',
+        [fieldName]: '',
       })
     }
   }
@@ -87,6 +89,11 @@ export default function RegisterPage() {
       newErrors.studentDocument = 'Öğrenci belgesi yüklenmesi zorunludur'
     }
 
+    // Öğretmen için belge zorunluluğu
+    if (formData.role === 'ogretmen' && !formData.teacherDocument) {
+      newErrors.teacherDocument = 'Öğretmen belgesi yüklenmesi zorunludur'
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -108,8 +115,12 @@ export default function RegisterPage() {
 
       // Basit demo için localStorage kullanıyoruz
       // Gerçek uygulamada dosya API'ye yüklenir ve URL döner
-      const documentUrl = formData.studentDocument 
+      const studentDocumentUrl = formData.studentDocument 
         ? URL.createObjectURL(formData.studentDocument) 
+        : null
+      
+      const teacherDocumentUrl = formData.teacherDocument 
+        ? URL.createObjectURL(formData.teacherDocument) 
         : null
 
       const userData = {
@@ -118,7 +129,8 @@ export default function RegisterPage() {
         email: formData.email,
         username: formData.username,
         role: formData.role,
-        studentDocumentUrl: documentUrl,
+        studentDocumentUrl: studentDocumentUrl,
+        teacherDocumentUrl: teacherDocumentUrl,
         createdAt: new Date().toISOString(),
       }
 
@@ -145,6 +157,15 @@ export default function RegisterPage() {
             Veya{' '}
             <Link href="/login" className="font-medium text-primary-600 hover:text-primary-500">
               zaten hesabınız var mı? Giriş yapın
+            </Link>
+          </p>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            <Link href="/organization/login" className="font-medium text-primary-600 hover:text-primary-500">
+              Kurum hesabı ile giriş yap
+            </Link>
+            {' · '}
+            <Link href="/organization/register" className="font-medium text-primary-600 hover:text-primary-500">
+              Kurum hesabı oluştur
             </Link>
           </p>
         </div>
@@ -219,7 +240,13 @@ export default function RegisterPage() {
                 name="role"
                 required
                 value={formData.role}
-                onChange={handleChange}
+                onChange={(e) => {
+                  if (e.target.value === 'kurum') {
+                    router.push('/organization/register')
+                    return
+                  }
+                  handleChange(e)
+                }}
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
                   errors.role ? 'border-red-300' : 'border-gray-300'
                 } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm bg-white`}
@@ -230,6 +257,7 @@ export default function RegisterPage() {
                 <option value="veli">Veli</option>
                 <option value="yonetici">Yönetici</option>
                 <option value="teknik_destek">Teknik Destek</option>
+                <option value="kurum">Kurum</option>
               </select>
               {errors.role && (
                 <p className="mt-1 text-sm text-red-600">{errors.role}</p>
@@ -256,6 +284,31 @@ export default function RegisterPage() {
                 {formData.studentDocument && (
                   <p className="mt-1 text-xs text-green-600 px-3">
                     ✓ {formData.studentDocument.name} seçildi
+                  </p>
+                )}
+              </div>
+            )}
+            {formData.role === 'ogretmen' && (
+              <div>
+                <label htmlFor="teacherDocument" className="block text-xs font-medium text-gray-700 mb-1 px-3 pt-2">
+                  Öğretmen Belgesi (Zorunlu) *
+                </label>
+                <input
+                  id="teacherDocument"
+                  name="teacherDocument"
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={handleFileChange}
+                  className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
+                    errors.teacherDocument ? 'border-red-300' : 'border-gray-300'
+                  } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm`}
+                />
+                {errors.teacherDocument && (
+                  <p className="mt-1 text-sm text-red-600 px-3">{errors.teacherDocument}</p>
+                )}
+                {formData.teacherDocument && (
+                  <p className="mt-1 text-xs text-green-600 px-3">
+                    ✓ {formData.teacherDocument.name} seçildi
                   </p>
                 )}
               </div>

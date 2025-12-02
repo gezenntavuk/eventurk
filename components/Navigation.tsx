@@ -62,6 +62,7 @@ export default function Navigation() {
     ? '/profile'
     : '/login'
 
+
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-20">
       <div className="container mx-auto px-4">
@@ -104,6 +105,32 @@ export default function Navigation() {
               <span className="mr-2">👤</span>
               Profil
             </Link>
+
+            {/* Giriş linkleri (giriş yapılmamışsa) */}
+            {!isOrgAuthenticated && !isAuthenticated && (
+              <>
+                <Link
+                  href="/login"
+                  className={`px-4 py-2 rounded-lg transition-colors ${
+                    pathname === '/login'
+                      ? 'bg-primary-100 text-primary-700 font-semibold'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  Giriş Yap
+                </Link>
+                <Link
+                  href="/organization/login"
+                  className={`px-4 py-2 rounded-lg transition-colors ${
+                    pathname === '/organization/login'
+                      ? 'bg-primary-100 text-primary-700 font-semibold'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  Kurum Girişi
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobil menü butonu */}
@@ -178,6 +205,32 @@ export default function Navigation() {
               <span className="mr-2">👤</span>
               Profil
             </Link>
+            {!isOrgAuthenticated && !isAuthenticated && (
+              <>
+                <Link
+                  href="/login"
+                  className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+                    pathname === '/login'
+                      ? 'bg-primary-100 text-primary-700'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Giriş Yap
+                </Link>
+                <Link
+                  href="/organization/login"
+                  className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+                    pathname === '/organization/login'
+                      ? 'bg-primary-100 text-primary-700'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Kurum Girişi
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>

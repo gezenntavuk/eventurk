@@ -15,6 +15,7 @@ export default function OrganizationRegisterPage() {
     phone: '',
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [kvkkAccepted, setKvkkAccepted] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
@@ -51,6 +52,10 @@ export default function OrganizationRegisterPage() {
       newErrors.description = 'Açıklama gereklidir'
     } else if (formData.description.length < 20) {
       newErrors.description = 'Açıklama en az 20 karakter olmalıdır'
+    }
+
+    if (!kvkkAccepted) {
+      newErrors.kvkk = 'KVKK Aydınlatma Metni\'ni kabul etmelisiniz'
     }
 
     setErrors(newErrors)
@@ -221,6 +226,41 @@ export default function OrganizationRegisterPage() {
                 placeholder="+90 555 123 45 67"
               />
             </div>
+          </div>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <label className="flex items-start">
+              <input
+                type="checkbox"
+                checked={kvkkAccepted}
+                onChange={(e) => {
+                  setKvkkAccepted(e.target.checked)
+                  if (errors.kvkk) {
+                    setErrors({ ...errors, kvkk: '' })
+                  }
+                }}
+                className="mt-1 mr-3"
+                required
+              />
+              <div className="flex-1">
+                <span className="text-sm font-medium text-gray-900">
+                  KVKK Aydınlatma Metni'ni okudum ve kabul ediyorum *
+                </span>
+                <p className="text-xs text-gray-600 mt-1">
+                  Kişisel verilerinizin işlenmesi hakkında{' '}
+                  <a href="#" className="text-primary-600 hover:underline" onClick={(e) => {
+                    e.preventDefault()
+                    alert('KVKK Aydınlatma Metni:\n\nBu platformda toplanan kişisel verileriniz, 6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında işlenmektedir. Verileriniz sadece platform hizmetlerinin sunulması amacıyla kullanılacaktır.')
+                  }}>
+                    aydınlatma metnini
+                  </a>{' '}
+                  okuyunuz.
+                </p>
+                {errors.kvkk && (
+                  <p className="mt-1 text-sm text-red-600">{errors.kvkk}</p>
+                )}
+              </div>
+            </label>
           </div>
 
           <div>

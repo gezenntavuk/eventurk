@@ -188,6 +188,15 @@ export default function LoginPage() {
               yeni hesap oluşturun
             </Link>
           </p>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            <Link href="/organization/login" className="font-medium text-primary-600 hover:text-primary-500">
+              Kurum hesabı ile giriş yap
+            </Link>
+            {' · '}
+            <Link href="/organization/register" className="font-medium text-primary-600 hover:text-primary-500">
+              Kurum hesabı oluştur
+            </Link>
+          </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
@@ -209,7 +218,7 @@ export default function LoginPage() {
                 value={formData.identifier}
                 onChange={handleChange}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                placeholder="E-posta veya kullanıcı adı (örn. admin123)"
+                placeholder="E-posta veya kullanıcı adı"
               />
             </div>
             <div>
